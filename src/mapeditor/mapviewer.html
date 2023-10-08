@@ -1,0 +1,201 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>3D Tile Map Viewer gngine </title>
+    <meta name="description" content="Presentation of gngine features">
+    <meta name="author" content="yentenobserver">
+
+    <meta property="og:title" content="gngine sample page">
+    <meta property="og:type" content="website">
+    <meta property="og:url"
+        content="https://nftcity.rhodl.com/?pixelMapping=https://nftcity.rhodl.com/assets/pixelMapping.json&pixelMap=https://nftcity.rhodl.com/assets/monte-carlo.png&t=https://nftcity.rhodl.com/assets/terrain-prod.gltf">
+    <meta property="og:description" content="Presentation of gngine features">
+    <meta property="og:image" content="https://nftcity.rhodl.com/assets/ogimage.png">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css" integrity="sha512-q3eWabyZPc1XTCmF+8/LuE1ozpg5xxn7iO89yfSOd5/oKvyqLngoNGsx8jq92Y8eXJ/IRxQbEC+FGSYxtk2oiw==" crossorigin="anonymous" referrerpolicy="no-referrer" />    
+    <script src="js/rivet.js"></script>
+    <script src="js/rivet-ext.js"></script>
+
+    
+
+    
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r124/three.min.js"
+        integrity="sha512-jeYvJdyAYkpQCY/omvCYQo89qA5YxDW4JBT7COPsHT2sOAanwxkZRFeP9gc69b5reSDpZIoyCqZQZcWZkbB5Gw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.124.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- this part MUST be after all global libs like THREE.js-->
+    <script src="../../../dist/hexmap3d.umd.js"></script>    
+    <script src="js/mapViewer.js"></script>
+</head>
+
+<body>
+    <style type="text/css">
+        /* Set the size of the div element that contains the map */
+        #gmap {
+            height: 400px;
+            /* The height is 400 pixels */
+            width: 100%;
+            /* The width is the width of the web page */
+        }
+    </style>
+    <style>
+        .container-canvas {
+            /* This could be done in one single declaration. See the extended sample. */
+            margin-right: auto;
+            margin-left: auto;
+            width: 100%;
+            background-color: rgb(250, 248, 248);
+        }
+
+        .v3d {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .table.is-borderless td,
+        .table.is-borderless th {
+            border: 0;
+        }
+    </style>
+    <div id="app">
+        <section class="section pb-2">            
+        </section>
+        <section class="section">                   
+            <h1 class="title">Parameters</h1>  
+            <div class="columns">
+                <div class="column is-one-quarter">
+                    <div class="field">
+                        <label class="label">Map JSON</label>
+                        <div class="control">
+                          <textarea class="textarea" placeholder="Paste map json here..." rv-value="model.mapJson.value"></textarea>
+                        </div>
+                    </div>
+                </div>
+                <div class="column is-one-quarter">
+                    <div class="field">
+                        <label class="label">Renderables' specification JSON</label>
+                        <div class="control">
+                          <textarea class="textarea" placeholder="Paste renderables' specification here..." rv-value="model.rsJson.value"></textarea>
+                        </div>
+                    </div>
+                </div>
+            </div>          
+            <div class="field">                
+                <div class="control">
+                    <button class="button is-success" rv-on-click="_handleRender">
+                        Render
+                        </button>
+                </div>
+            </div>          
+        </section>      
+        <div id="map-holder"></div>   
+        <section class="section"> 
+            <h1 class="title is-size-6">Interaction Logs</h1>
+            <pre>
+                {model.logs.value}
+            </pre>
+        </section>       
+    </div>
+        
+    <!-- Busy Modal -->
+    <div id="busy">
+
+        <div class="modal" rv-class-is-active="model.display">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+                <button class="button is-warning is-loading" disabled></button><br>
+                <p class="subtitle my-3 px-2 py-2" style="background-color: #eff0f1; display: inline-block;">
+                    {model.message}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script>        
+        class EventEmitter {
+            constructor() {
+                this.listeners = {};
+            }
+
+            static getInstance() {
+                return new EventEmitter();
+            }
+
+            on(event, callback) {
+                if (!this.listeners.hasOwnProperty(event)) {
+                    this.listeners[event] = [];
+                }
+
+                this.listeners[event].push(callback);
+
+                return this;
+            }
+
+            emit(event, ...data) {
+                // if (!this.listeners.hasOwnProperty(event)) {
+                //     return null;
+                // }
+
+                // for (let i = 0; i < this.listeners[event].length; i++) {
+                //     const callback = this.listeners[event][i];
+
+                //     callback.call(this, ...data);
+                // }
+
+                const that = this;
+
+                // handle wildcards
+                Object.keys(this.listeners).forEach(function(key,index) {
+                    // key: the name of the object key
+                    // index: the ordinal position of the key within the object 
+                    const regex = new RegExp(key,"g");
+                    if(regex.test(event)){
+                        for (let i = 0; i < that.listeners[key].length; i++) {
+                            const callback = that.listeners[key][i];
+                            callback.call(that, ...data);
+                        }
+                    }
+                });                
+            }
+        }
+        const emitter = EventEmitter.getInstance();
+        initializeRivetFormatters()
+
+        App.getInstance(emitter).then((app)=>{
+            rivets.bind(document.getElementById('app'), app);
+        });
+
+
+
+
+
+    </script>
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>
+                Made with <span style="color: #e25555;">&#9829;</span> in Switzerland<br>
+                &copy;
+                <span id="copyright">
+                    <script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script>
+                </span>
+                NFT City
+            </p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

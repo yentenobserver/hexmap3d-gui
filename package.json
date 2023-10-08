@@ -1,0 +1,13 @@
+{
+  "name": "hexmap3d-gui",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prepare": "date && echo \"Preparing...\" && rm -fr public/ && mkdir public && cp -r src/mapeditor/ public/ && echo \"Preparing...DONE.\"",
+    "deploy": "date && echo \"Deploying...\" && npm run prepare && firebase deploy --only hosting"
+  },
+  "author": "",
+  "license": "ISC"
+}

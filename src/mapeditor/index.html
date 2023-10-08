@@ -1,0 +1,554 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Hexmap3D Map Editor 3D - powered by ThreeJs</title>
+    <meta name="description" content="Presentation of gngine features">
+    <meta name="author" content="yentenobserver">
+
+    <meta property="og:title" content="gngine sample page">
+    <meta property="og:type" content="website">
+    <meta property="og:url"
+        content="https://nftcity.rhodl.com/?pixelMapping=https://nftcity.rhodl.com/assets/pixelMapping.json&pixelMap=https://nftcity.rhodl.com/assets/monte-carlo.png&t=https://nftcity.rhodl.com/assets/terrain-prod.gltf">
+    <meta property="og:description" content="Presentation of gngine features">
+    <meta property="og:image" content="https://nftcity.rhodl.com/assets/ogimage.png">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <link rel="stylesheet" href="css/style.css">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.9.0/css/all.min.css" integrity="sha512-q3eWabyZPc1XTCmF+8/LuE1ozpg5xxn7iO89yfSOd5/oKvyqLngoNGsx8jq92Y8eXJ/IRxQbEC+FGSYxtk2oiw==" crossorigin="anonymous" referrerpolicy="no-referrer" />
+    <script src="https://unpkg.com/localbase/dist/localbase.min.js"></script>
+    <script src="js/rivet.js"></script>
+    <script src="js/rivet-ext.js"></script>
+
+    
+
+    
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r124/three.min.js"
+        integrity="sha512-jeYvJdyAYkpQCY/omvCYQo89qA5YxDW4JBT7COPsHT2sOAanwxkZRFeP9gc69b5reSDpZIoyCqZQZcWZkbB5Gw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.124.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- this part MUST be after all global libs like THREE.js-->
+    <script src="https://cdn.jsdelivr.net/npm/hexmap3d"></script>
+    <script src="js/api.js"></script>
+    <script src="js/mapEditorApp.js"></script>
+</head>
+
+<body>
+    <style type="text/css">
+        /* Set the size of the div element that contains the map */
+        #gmap {
+            height: 400px;
+            /* The height is 400 pixels */
+            width: 100%;
+            /* The width is the width of the web page */
+        }
+    </style>
+    <style>
+        .container-canvas {
+            /* This could be done in one single declaration. See the extended sample. */
+            margin-right: auto;
+            margin-left: auto;
+            width: 100%;
+            background-color: rgb(250, 248, 248);
+        }
+
+        .v3d {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .table.is-borderless td,
+        .table.is-borderless th {
+            border: 0;
+        }
+    </style>
+    <div id="app">
+        <section class="section pb-2">
+            <nav class="level">
+                <!-- Left side -->
+                <div class="level-left">
+                    <div class="level-item is-hidden" rv-class-is-hidden="model.process.step | neq 'MapEdit'">
+                        <p class="subtitle is-5">
+                        <strong>{model.mapCharacteristics.name}</strong> 
+                        </p>
+                        <small>{model.mapCharacteristics.size}</small>
+                    </div>
+                    <div class="level-item is-hidden" rv-class-is-hidden="model.process.step | neq 'MapEdit'">
+                        <span rv-each-tag="model.mapCharacteristics.tags" class="tag is-light mx-1">{tag}</span>
+                    </div>
+                    <div class="level-item is-hidden" rv-class-is-hidden="model.process.step | neq 'MapEdit'">
+                        <div class="select">
+                            <select rv-value="model.deployments.value" rv-on-change="_handleSpecialAreasChanged">
+                              <option value="">Helper Views</option>
+                              <option value="RED_DEPLOYMENT">Show Romeo Team</option>
+                              <option value="BLUE_DEPLOYMENT">Show Bravo Team</option>
+                              <option value="GREEN_DEPLOYMENT">Show Golf Team</option>
+                              <option value="YELLOW_DEPLOYMENT">Show Yankee Team</option>
+                              <option value="X_MISSING_CONFIG">Show Missing Config</option>
+                            </select>
+                        </div>
+                    </div>
+                    <p class="level-item is-hidden" rv-class-is-hidden="model.process.step | neq 'MapEdit'"><a href="mapeditor.html">Start New Map</a></p>
+                    <p class="level-item is-hidden" rv-class-is-hidden="model.process.step | neq 'MapEdit'"><a >|</a></p>
+                    <p class="level-item"><a href="assets.html">Asset Editor</a></p>
+                </div>
+            
+                <!-- Right side -->
+                <div class="level-right">
+                <!-- <p class="level-item"><strong>All</strong></p> -->
+                <p class="level-item is-hidden" rv-class-is-hidden="model.process.step | neq 'MapEdit'"><a rv-on-click="_handlePublishMap">Publish</a></p>
+                <p class="level-item is-hidden" rv-class-is-hidden="model.process.step | neq 'MapEdit'"><a rv-on-click="_handleDownloadMap">Download as file</a></p>
+                <p class="level-item is-hidden" rv-class-is-hidden="model.process.step | neq 'MapEdit'"><a rv-on-click="_handleExportMap">Export to clipboard</a></p>                                
+                <!-- <p class="level-item"><a class="button is-success">New</a></p> -->
+                </div>
+            </nav>
+
+            
+        </section>
+        <section class="section is-hidden" rv-class-is-hidden="model.process.step | neq 'ChooseKind'">        
+            <h1 class="title">Create/Edit Map</h1>
+            <div class="field is-grouped">
+                <p class="control">
+                    <button class="button is-link" data-next-step="UseWizard" rv-on-click="_handleStepChooseKind">
+                    Use wizard
+                    </button>
+                </p>                
+                <p class="control">
+                    <button class="button is-success" data-next-step="UseJson" rv-on-click="_handleStepChooseKind">
+                    Use Json
+                    </button>
+                </p>
+                
+                <p class="control">
+                    <button class="button is-success" rv-on-click="_handleLoadMap">
+                        Load Map
+                    </button>
+                    <div class="select" >
+                        <select rv-value="model.selected.map">                        
+                          <option value="-1">Choose</option>                          
+                          <option rv-each-map="model.maps.original" rv-value="map.specs.id">{map.specs.name} {map.specs.size}@{map.specs.kind} #{map.specs.id}</option>                          
+                        </select>
+                    </div>
+                    
+                </p>
+            </div>              
+        </section>
+        
+        <!-- load json section -->
+        <section class="section is-hidden" rv-class-is-hidden="model.process.step | neq 'UseJson'">
+            <div class="field">
+                <label class="label">Map Data</label>
+                <div class="control">
+                    <textarea class="textarea" placeholder="map json contents go here..." rows="10" rv-value="model.stepUseJson.form.contents.value" rv-class-is-danger="model.stepUseJson.form.contents.error | notEmpty"></textarea>
+                               
+                </div>
+                <p class="help" rv-class-is-hidden="model.stepUseJson.form.contents.error | notEmpty">Paste map json contents here</p>
+                <p class="help is-hidden is-danger" rv-class-is-hidden="model.stepUseJson.form.contents.error | empty">{model.stepUseJson.form.contents.error.message}</p>
+            </div>
+            <div class="field is-grouped">
+                <div class="control">
+                  <button class="button is-link" rv-on-click="_handleStepUseJson" data-next-step="MapEdit">Load</button>
+                </div>
+                <div class="control">
+                  <button class="button is-link is-light" rv-on-click="_handleStepUseJson" data-next-step="ChooseKind">Cancel</button>
+                </div>
+            </div>
+        </section>
+        <!-- wizard section -->
+        <section class="section is-hidden" rv-class-is-hidden="model.process.step | neq 'UseWizard'">
+            <div class="field">
+                <label class="label">Map Name</label>
+                <div class="control">
+                  <input class="input" type="text" placeholder="user friendly name" rv-value="model.stepUseWizard.form.name.value" rv-class-is-danger="model.stepUseWizard.form.mapName.error | notEmpty">                  
+                </div>
+                <p class="help">At least 3 chars</p>
+            </div>
+            <div class="field" rv-class-is-hidden="model.busy">
+                <label class="label">Map Kind</label>
+                <div class="control">
+                    <div class="select" >
+                      <select rv-value="model.stepUseWizard.form.kind.value">                        
+                        <option value="HexTile">Hex Map</option>
+                        <option value="QuadTile">Square Map</option>
+                      </select>
+                    </div>
+                  </div>
+                <p class="help">Map & tiles geometry</p>
+            </div>
+            <div class="field" rv-class-is-hidden="model.busy">
+                <label class="label">Map Size (width x height)</label>
+                <div class="control">
+                    <div class="select" >
+                      <select rv-value="model.stepUseWizard.form.size.value">                        
+                        <option value="1x1">1x1</option>
+                        <option value="2x2">2x2</option>
+                        <option value="8x5">8x5</option>
+                        <option value="8x8">8x8</option>
+                        <option value="16x10">16x10</option>
+                        <option value="16x16">16x16</option>
+                        <option value="32x20">32x20</option>
+                        <option value="32x32">32x32</option>                        
+                        <option value="64x40">64x40</option>
+                        <option value="64x64">64x64</option>                        
+                      </select>
+                    </div>
+                  </div>
+                <p class="help">Map dimensions (in tiles)</p>
+            </div>
+            <div class="field">
+                <label class="label">Tags</label>
+                <div class="control">
+                  <input class="input" type="text" placeholder="i.e. WW2, Historic" rv-value="model.stepUseWizard.form.tags.value">                  
+                </div>
+                <p class="help">List of comma separated tags</p>
+            </div>
+            <div class="field">
+                <label class="label">Helper background image</label>
+                <div class="control">
+                  <input class="input" type="text" placeholder="assets/europeelevation.eps.zoom-gr.png" rv-value="model.stepUseWizard.form.backgroundImageURL.value" rv-class-is-danger="model.stepUseWizard.form.backgroundImageURL.error | notEmpty">                  
+                </div>
+                <p class="help">Must be either 1:1 or 1:618 depending on map dimensions</p>
+            </div>
+            <div class="field">
+                <label class="label">Location (for real maps)</label>
+                <div class="control">
+                  <input class="input" type="text" placeholder="Real address" rv-value="model.stepUseWizard.form.address.value">                  
+                </div>
+                <p class="help">ie. 5th Avenue, New York, United States</p>
+                <div class="control">
+                    <input class="input" type="text" placeholder="Lat lon coordinates" rv-value="model.stepUseWizard.form.latlon.value">                  
+                </div>
+                <p class="help">ie. 40.730610,-73.935242</p>
+            </div>                    
+            <div class="field is-grouped">
+                <div class="control">
+                  <button class="button is-link" rv-on-click="_handleStepUseWizard" data-next-step="MapEdit">Create</button>
+                </div>
+                <div class="control">
+                  <button class="button is-link is-light" rv-on-click="_handleStepUseWizard" data-next-step="ChooseKind">Cancel</button>
+                </div>
+            </div>
+        </section>
+        <!-- Map Edit Section -->
+        <section class="section pt-0 px-0 is-hidden" rv-class-is-hidden="model.process.step | neq 'MapEdit'">        
+            
+            <div class="tile is-ancestor">
+                <div class="tile is-9 is-parent">
+                    
+                    <div class="tile is-child" >
+                        <div class="box is-hidden" rv-class-is-hidden="model.selected.tile.data.id | empty">
+                            <article class="media">
+                              <div class="media-left">
+                                <figure class="image is-64x64">
+                                  <img rv-src="model.selected.tile.asset.variant.thumbnail" alt="Image">
+                                </figure>
+                              </div>
+                              <div class="media-content">
+                                <div class="content">
+                                  <p>
+                                    <strong>Tile</strong><small>({model.selected.tile.data.id})</small><small class="is-hidden" rv-class-is-hidden="model.selected.tile.dataMulti | sizeLt 2">(#{model.selected.tile.dataMulti | size} selected)</small> 
+                                    <!-- <small><a class="mx-1" rv-on-click="_handleShowAssetBrowser"> -->
+                                    <small><a class="mx-1" rv-on-click="_handleShowAssetsAndTerrain">
+                                        <span class="icon is-small">
+                                            <i class="fas fa-search"></i>
+                                        </span>
+                                        Change
+                                    </a></small><br>                                                                                                    
+                                    <small><span rv-each-tag="model.selected.tile.asset.specs.tags" class="tag is-light mx-1">{tag}</span></small><br>
+                                    <strong>Terrain</strong><br>
+                                    <small>{model.selected.tile.data.t.kind} <span class="is-hidden" rv-class-is-hidden="model.selected.tile.data.t.modifications | sizeLtOrNull 1">with: {model.selected.tile.data.t.modifications | arrayJoin ","}</span></small>
+                                  </p>
+                                </div>                                 
+                              </div>
+                            </article>
+                            
+                        </div> 
+                        <div id="map-holder"></div>
+                        <!-- <canvas id="map" class="map playground"></canvas> -->
+                    </div>
+                </div>
+                <div class="tile is-parent">
+                    <div class="tile is-child">
+                        
+                        <div class="box is-hidden" rv-class-is-hidden="model.terrain.hidden">
+                            <h1 class="title">Terrain</h1>
+                            <div class="field">
+                                <label class="label">Standard Terrain</label>
+                                <div class="control">
+                                    <div class="select" >
+                                      <select rv-value="model.stepMapEdit.terrainForm.terrainDict.value" rv-on-change="_handleTerrainChanged">                                                
+                                        <option value="UNDEFINED">UNDEFINED</option>
+                                        <option value="MOUNTAINS">MOUNTAINS</option>
+                                        <option value="PLAINS">PLAINS</option>
+                                        <option value="GRASSLANDS">GRASSLANDS</option>
+                                        <option value="DIRTS">DIRTS</option>
+                                        <option value="HILLS">HILLS</option>
+                                        <option value="DESERTS">DESERTS</option>
+                                        <option value="SEAS">SEAS</option>
+                                        <option value="OCEANS">OCEANS</option>
+                                        <option value="LAKES">LAKES</option>
+                                        <option value="COASTAL">COASTAL</option>
+                                        <option value="">--------------</option>
+                                        <option value="CUSTOM">CUSTOM</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                <p class="help">Type of terrain (standard, from dictionary)</p>
+                            </div>
+                            <div class="field is-hidden" rv-class-is-hidden="model.stepMapEdit.terrainForm.terrainDict.value | neq 'CUSTOM'">
+                                <label class="label">Custom Terrain</label>
+                                <div class="control">
+                                  <input class="input" style="text-transform: uppercase" type="text" placeholder="i.e. FLOODPLAINS" rv-value="model.stepMapEdit.terrainForm.terrainCustom.value" rv-on-input="_handleTerrainChanged">                  
+                                </div>                                        
+                                <p class="help">uppercase letters, no whitespace, plural form</p>
+                            </div>
+                            <div class="field">
+                                <label class="label">Standard Modifiers</label>
+                                <div class="control">
+                                    <div class="select is-multiple" >
+                                        
+                                      <select multiple size="4" rv-value="model.stepMapEdit.terrainForm.modificationsDict.value" rv-on-change="_handleModifiersChanged">                                               
+                                        <option value="RAILWAY">RAILWAY</option>
+                                        <option value="ROAD">ROAD</option>
+                                        <option value="FORREST">FORREST</option>
+                                        <option value="BUILDING">BUILDING</option>
+                                        <option value="RIVER">RIVER</option>
+                                        <option value="GLACIER">GLACIER</option>                                                
+                                        <option value="IMPASSABLE">IMPASSABLE</option>                                                
+                                        <option value="">--------------</option>
+                                        <option value="RED_DEPLOYMENT">ROMEO TEAM DEPLOYMENT AREA</option>
+                                        <option value="BLUE_DEPLOYMENT">BRAVO TEAM DEPLOYMENT AREA</option>
+                                        <option value="GREEN_DEPLOYMENT">GOLF TEAM DEPLOYMENT AREA</option>
+                                        <option value="YELLOW_DEPLOYMENT">YANKEE TEAM DEPLOYMENT AREA</option>
+                                        <option value="">--------------</option>
+                                        <option value="CUSTOM">CUSTOM</option>
+                                      </select>
+                                    </div>
+                                  </div>
+                                <p class="help">Terrain modifiers (standard, from dictionary)</p>
+                            </div>
+                            <div class="field is-hidden" rv-class-is-hidden="model.stepMapEdit.terrainForm.modificationsDict.value | arrayNotContains 'CUSTOM'">
+                                <label class="label">Custom Modifiers</label>
+                                <div class="control">
+                                  <input class="input" style="text-transform: uppercase" type="text" placeholder="i.e. JUNGLE, DIAMONDS" rv-value="model.stepMapEdit.terrainForm.modificationsCustom.value" rv-on-input="_handleModifiersChanged">                  
+                                </div>                                        
+                                <p class="help">uppercase letters, no whitespaces, singular form,can be multiple comma separated</p>
+                            </div>  
+                        </div>                          
+                        <nav class="panel my-2 is-hidden" rv-class-is-hidden="model.assets.hidden">
+                            <div class="panel-heading">
+                                Asset Repository (#{model.assets.filtered | size} matching)<button class="delete mx-1" rv-on-click="_handleHideAssetBrowser"></button>
+                            </div>
+                            
+                            <div class="panel-block">
+                                <p class="control has-icons-left">
+                                <input class="input" type="text" placeholder="Search" rv-on-input="_handleFilter" rv-value="model.assets.filter">
+                                <span class="icon is-left">
+                                    <i class="fas fa-search" aria-hidden="true"></i>
+                                </span>
+                                </p>
+                            </div>
+                            <p class="panel-tabs">
+                                <a class="is-active">All</a>
+                                <!-- <a>Public</a>
+                                <a>Private</a>
+                                <a>Sources</a>
+                                <a>Forks</a> -->
+                            </p>
+                            <a class="panel-block" rv-on-click="model.handlers._handleChangeAsset" rv-each-item="model.assets.filtered" >
+                                <div>
+                                    <img rv-src="item.variant.thumbnail" alt="Image" style="width: 10rem">                                                                          
+                                </div>     
+                                <div>
+                                    <div class="block">
+                                        <strong>{item.specs.name}</strong>
+                                        <br><small>{item.specs.description}</small>
+                                    </div>                                        
+                                    <div class="block"><small><span rv-each-tag="item.specs.tags" class="tag is-light mx-1 my-1">{tag}</span></small></div>                                                                                                                        
+                                </div>                               
+                            </a>                                
+                            <div class="panel-block">
+                                <button class="button is-link is-outlined is-fullwidth" rv-on-click="_handleHideAssetBrowser">
+                                Close
+                                </button>
+                            </div>
+                        </nav>
+                                            
+                    </div>
+                </div>           
+            </div>
+            
+        </section>
+
+        <div class="is-hidden" rv-class-is-hidden="model.loading.done | eq false">
+            <div class="notification is-success" rv-each-item="model.notify.success">
+                <button class="delete" rv-on-click="model._handleNotifyClose"></button>
+                <strong>{item.title}</strong>
+                {item.msg}
+                <span rv-class-is-hidden="item.url | empty"><br><a rv-href="item.url">Click here for more
+                        details</a></span>
+            </div>
+            <div class="notification is-danger" rv-each-item="model.notify.error">
+                <button class="delete" rv-on-click="model._handleNotifyClose"></button>
+                <strong>{item.title}</strong>
+                {item.msg}
+                <span rv-class-is-hidden="item.url | empty"><br><a rv-href="item.url">Click here for more
+                        details</a></span>
+            </div>
+        </div>
+        
+    </div>
+        
+    <!-- Busy Modal -->
+    <div id="busy">
+
+        <div class="modal" rv-class-is-active="model.display">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+                <button class="button is-warning is-loading" disabled></button><br>
+                <p class="subtitle my-3 px-2 py-2" style="background-color: #eff0f1; display: inline-block;">
+                    {model.message}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-auth-compat.js"></script>
+
+
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-functions-compat.js"></script> -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore-compat.js"></script> -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth-compat.js"></script> -->
+
+
+
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyCOJrKiXk-U9139Ys7o1OrXmQtB2YJmLUE",
+          authDomain: "gamengine-157c5.firebaseapp.com",
+          databaseURL: "https://gamengine-157c5-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "gamengine-157c5",
+          storageBucket: "gamengine-157c5.appspot.com",
+          messagingSenderId: "1054659077299",
+          appId: "1:1054659077299:web:85fab66102a43dc4cebcc6"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+    <script>        
+        class EventEmitter {
+            constructor() {
+                this.listeners = {};
+            }
+
+            static getInstance() {
+                return new EventEmitter();
+            }
+
+            on(event, callback) {
+                if (!this.listeners.hasOwnProperty(event)) {
+                    this.listeners[event] = [];
+                }
+
+                this.listeners[event].push(callback);
+
+                return this;
+            }
+
+            emit(event, ...data) {
+                // if (!this.listeners.hasOwnProperty(event)) {
+                //     return null;
+                // }
+
+                // for (let i = 0; i < this.listeners[event].length; i++) {
+                //     const callback = this.listeners[event][i];
+
+                //     callback.call(this, ...data);
+                // }
+
+                const that = this;
+
+                // handle wildcards
+                Object.keys(this.listeners).forEach(function(key,index) {
+                    // key: the name of the object key
+                    // index: the ordinal position of the key within the object 
+                    const regex = new RegExp(key,"g");
+                    if(regex.test(event)){
+                        for (let i = 0; i < that.listeners[key].length; i++) {
+                            const callback = that.listeners[key][i];
+                            callback.call(that, ...data);
+                        }
+                    }
+                });                
+            }
+        }
+        const emitter = EventEmitter.getInstance();
+        const mapCanvas = document.getElementById("map");        
+        initializeRivetFormatters()
+
+        App.getInstance(emitter, mapCanvas).then((demo)=>{
+            rivets.bind(document.getElementById('app'), demo);
+            // const demo2 = AppDemo.getInstance(emitter2, mapCanvas2);
+
+            window.mgr_tiles = [];
+            window.emitter = emitter;
+            window.demo = demo;
+
+            // emitter.on(hexmap3d.Events.INTERACTIONS.TILE,(event)=>{
+            //     if(event.originalEvent.type=="pointerdown") {
+            //         for(let i=event.data.hierarchy.length-1; i>= 0; i--){
+            //         if(event.data.hierarchy[i].userData.tileData){                
+            //             tileData = event.data.hierarchy[i].userData.tileData                    
+            //             window.mgr_tiles.push(tileData);
+            //         }
+            //     }
+            //     };
+                
+                
+            //     // console.log('TILE',event.originalEvent.type)
+            // });
+            // emitter.on(hexmap3d.Events.INTERACTIONS.UNIT,(event)=>{
+            //     if(event.originalEvent.type=="pointerdown") {
+            //         console.log('UNIT', event)
+            //     }
+                
+            // });
+            // emitter.on(hexmap3d.Events.INTERACTIONS.HUD,(e)=>{console.log('HUD', e)});
+
+
+        });
+
+
+
+
+
+    </script>
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>
+                Made with <span style="color: #e25555;">&#9829;</span> in Switzerland<br>
+                &copy;
+                <span id="copyright">
+                    <script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script>
+                </span>
+                NFT City
+            </p>
+        </div>
+    </footer>
+
+</body>
+
+</html>

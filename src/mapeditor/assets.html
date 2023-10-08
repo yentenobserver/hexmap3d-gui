@@ -1,0 +1,760 @@
+<!doctype html>
+
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>gngine - Units Editor</title>
+    <meta name="description" content="Presentation of gngine features">
+    <meta name="author" content="yentenobserver">
+
+    <meta property="og:title" content="gngine sample page">
+    <meta property="og:type" content="website">
+    <meta property="og:url"
+        content="https://nftcity.rhodl.com/?pixelMapping=https://nftcity.rhodl.com/assets/pixelMapping.json&pixelMap=https://nftcity.rhodl.com/assets/monte-carlo.png&t=https://nftcity.rhodl.com/assets/terrain-prod.gltf">
+    <meta property="og:description" content="Presentation of gngine features">
+    <meta property="og:image" content="https://nftcity.rhodl.com/assets/ogimage.png">
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+    <!-- <script src="//cdn.jsdelivr.net/npm/pouchdb@8.0.1/dist/pouchdb.min.js"></script>
+    <script src="https://unpkg.com/browse/pouchdb@8.0.1/dist/pouchdb.find.min.js"></script> -->
+    <script src="https://unpkg.com/localbase/dist/localbase.min.js"></script>
+    
+    <script src="js/rivet.js"></script>
+    <script src="js/rivet-ext.js"></script>
+
+    
+
+    
+    <!-- <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js" integrity="sha512-dLxUelApnYxpLt6K2iomGngnHO83iUvZytA3YjDUCjT0HDOHKXnVYdf3hU4JjM8uEhxf9nD1/ey98U3t2vZ0qQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script> -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r124/three.min.js"
+        integrity="sha512-jeYvJdyAYkpQCY/omvCYQo89qA5YxDW4JBT7COPsHT2sOAanwxkZRFeP9gc69b5reSDpZIoyCqZQZcWZkbB5Gw=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="https://cdn.jsdelivr.net/npm/three@0.124.0/examples/js/loaders/GLTFLoader.js"></script>
+    <!-- this part MUST be after all global libs like THREE.js-->
+    <script src="../../../dist/hexmap3d.umd.js"></script>
+    <script src="js/api.js"></script>
+    <script src="js/app.js"></script>
+    <script src="js/addAssetModalController.js"></script>
+    <script src="js/addTagsModalController.js"></script>
+    <script src="js/addLibraryModalController.js"></script>
+    
+</head>
+
+<body>
+    <style>
+        .container-canvas {
+            /* This could be done in one single declaration. See the extended sample. */
+            margin-right: auto;
+            margin-left: auto;
+            width: 100%;
+            background-color: rgb(250, 248, 248);
+        }
+
+        .v3d {
+            width: 100%;
+            height: 100%;
+            display: block;
+        }
+
+        .table.is-borderless td,
+        .table.is-borderless th {
+            border: 0;
+        }
+    </style>
+    <div id="app">
+        <!-- <section class="section">        
+            <div class="field is-grouped">
+                <p class="control">
+                    <button class="button is-link">
+                    Use wizard
+                    </button>
+                </p>                
+                <p class="control">
+                    <button class="button is-success">
+                    Use Json
+                    </button>
+                </p>
+            </div>              
+        </section> -->
+        <!-- wizard section -->
+        <!-- <section class="section">
+            <div class="field">
+                <label class="label">Username</label>
+                <div class="control has-icons-left has-icons-right">
+                  <input class="input is-success" type="text" placeholder="Text input" value="bulma">
+                  <span class="icon is-small is-left">
+                    <i class="fas fa-user"></i>
+                  </span>
+                  <span class="icon is-small is-right">
+                    <i class="fas fa-check"></i>
+                  </span>
+                </div>
+                <p class="help is-success">This username is available</p>
+            </div>
+            <div class="field">
+                <label class="label">3D Assets Json</label>
+                <div class="control">
+                  <textarea class="textarea" placeholder="Textarea"></textarea>
+                </div>
+            </div>
+        </section> -->
+        <!-- 3d asset browser -->
+        <!-- <section class="section">
+            <div class="card">
+                <div class="card-image">
+                  <figure class="image is-4by3">
+                    <canvas id="map" style="width:200px" ></canvas>
+                  </figure>
+                </div>
+                <div class="card-content">
+                  <div class="media">
+                    <div class="media-left">
+                      <figure class="image is-48x48">
+                        <img src="https://bulma.io/images/placeholders/96x96.png" alt="Placeholder image">
+                      </figure>
+                    </div>
+                    <div class="media-content">
+                      <p class="title is-4">John Smith</p>
+                      <p class="subtitle is-6">@johnsmith</p>
+                    </div>
+                  </div>
+              
+                  <div class="content">
+                    Lorem ipsum dolor sit amet, consectetur adipiscing elit.
+                    Phasellus nec iaculis mauris. <a>@bulmaio</a>.
+                    <a href="#">#css</a> <a href="#">#responsive</a>
+                    <br>
+                    <time datetime="2016-1-1">11:09 PM - 1 Jan 2016</time>
+                  </div>
+                </div>
+            </div>
+        </section> -->
+        
+            <!-- <div class="is-hidden" rv-class-is-hidden="model.loading.done | eq false">
+                <div class="notification is-success" rv-each-item="model.notify.success">
+                    <button class="delete" rv-on-click="model._handleNotifyClose"></button>
+                    <strong>{item.title}</strong>
+                    {item.msg}
+                    <span rv-class-is-hidden="item.url | empty"><br><a rv-href="item.url">Click here for more
+                            details</a></span>
+                </div>
+                <div class="notification is-danger is-hidden" rv-class-is-hidden="model.notify.errors | sizeLt 1">
+                    <button class="delete" rv-on-click="model._handleNotifyClose"></button>
+                    <strong>Error</strong>
+                    There are errors in form
+                    <span rv-class-is-hidden="item.url | empty"><br><a rv-href="item.url">Click here for more
+                            details</a></span>
+                </div>
+            </div> -->
+        
+        <section class="section">
+            <!-- Main container -->
+            <nav class="level">
+                <!-- Left side -->
+                <div class="level-left">
+                    <div class="level-item">
+                        <p class="subtitle is-5 "><small>Library</small></p>
+                        <div class="field has-addons mx-2">
+                            <div class="select">
+                                <select rv-value="model.libraries.value" rv-on-change="_handleLibrariesChanged">                                    
+                                    
+                                    <option rv-each-item="model.libraries.original" rv-value="item.id">{item.name}</option>                                  
+                                    <option value="-1">------</option>
+                                    <option value="_CREATE">Create New</option>
+                                    
+                                </select>
+                              </div>
+                        </div>
+                    </div>
+                    <div class="level-item">
+                        <p class="subtitle is-5">
+                        <strong>{model.assets.filtered | size}</strong> assets
+                        </p>
+                    </div>
+                    <div class="level-item">
+                        <div class="field has-addons">
+                        <p class="control">
+                            <input rv-value="model.assets.filter" class="input" type="text" placeholder="Find an asset">
+                        </p>
+                        <p class="control">
+                            <button class="button" rv-on-click="_handleFilter">
+                            Search
+                            </button>
+                        </p>
+                        </div>
+                    </div>
+                    
+                    <p class="level-item"><a >|</a></p>
+                    <p class="level-item"><a href="mapeditor.html">Map Editor</a></p>
+                </div>
+            
+                <!-- Right side -->
+                <div class="level-right">
+                    
+                    <p class="level-item"><a class="button is-success is-hidden" rv-class-is-hidden="model.libraries.value | eq -1" rv-on-click="handleAddAsset">Add assets</a></p>
+                    <p class="level-item"><a class="button is-success is-hidden" rv-class-is-hidden="model.libraries.value | eq -1" rv-on-click="_handleCopy2ClipboardLibrary">Export library (clipboard)</a></p>
+                    <p class="level-item"><a class="button is-success is-hidden" rv-class-is-hidden="model.libraries.value | eq -1" rv-on-click="_handleDelete">Delete selected</a></p>
+                    <p class="level-item"><a class="button is-success is-hidden" rv-class-is-hidden="model.libraries.value | eq -1" rv-on-click="_handlePublishLibrary">Publish library (public)</a></p>
+                    <p class="level-item"><a class="button is-success is-hidden" rv-class-is-hidden="model.libraries.value | eq -1" rv-on-click="_handleCopy2ClipboardLibraryAsRenderablesArray">Export as RenderablesSpecification[] (clipboard)</a></p>
+                    
+                </div>
+            </nav>
+            <h1 class="title">Asset Editor</h1>
+            <table class="table is-fullwidth is-bordered is-striped">
+                <thead>
+                    <th></th>
+                    <th>Id</th>
+                    <th>Name</th>
+                    <th>Description</th>
+                    <th>Kind</th>                    
+                    <th>Tags</th>
+                    <th>Modified</th>
+                    <th>Variants</th> 
+                    <th>Library</th>                    
+                    <th>Actions</th>
+                </thead>
+                <tbody>                    
+                    <tr rv-each-item="model.assets.filtered">
+                        <td>
+                            <label class="checkbox">
+                                <input type="checkbox" rv-checked="item.selected">                                
+                            </label>
+                        </td>
+                        <td>{item.id}</td>
+                        <td>{item.name}</td>
+                        <td>{item.description}</td>
+                        <td>{item.kind}</td>
+                        
+                        <td>
+                            <span class="tag" rv-each-tag="item.tags" style="margin-right: 0.75em;">
+                            {tag}
+                          </span>
+                        </td>
+                        <td>{item.created}</td>
+                        <td>
+                            <ul>
+                                <li rv-each-subitem="item.variants">
+                                    {subitem.fullName}</br>
+                                    <img rv-src="subitem.thumbnail" width="100" height="100"></img>
+                                </li>
+                            </ul>
+                            
+                        </td>
+                        <td>{model.libraries.selected.name} [#{model.libraries.selected.id}]</td>
+                        <!-- <td><img rv-src="item.thumbnail" width="200" height="200"></img></td> -->
+                        <td>
+                            <button class="button is-info" rv-on-click="f._handleAddTags" rv-data-id="item.id">Annotate</button><br><br>
+                            <!-- <button class="button is-info" rv-on-click="item.that._handeCopy2ClipboardAsset" rv-data-id="item.id">Copy to clipboard</button> -->
+                        </td>                        
+                    </tr>
+                </tbody>
+            </table>            
+        </section>
+        <div id="globalBusyModal">
+            <div class="modal" rv-class-is-active="model.busy">
+                <!-- <div class="modal" class="is-active"></div> -->
+                    <div class="modal-background"></div>
+                    <div class="modal-content">Processing...</div>
+            </div>
+        </div>
+    </div>
+    
+    <!-- <form action='#' onsubmit="return false;">
+        <input type='file' id='imgfile' />
+        <input type='button' id='btnLoad' value='Load' onclick='loadImage();' />
+    </form>
+    <canvas id="canvas"></canvas> -->
+    <!-- <div id="wrapper"></div> -->
+
+    <!-- Modals -->    
+    
+
+    <!-- Add Asset -->
+    <div id="loadAssetModal">
+
+        <div class="modal" rv-class-is-active="model.display">
+        <!-- <div class="modal" class="is-active"></div> -->
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title" rv-class-is-hidden="model.busy">Library import assets</p>                    
+                    <p class="modal-card-title" rv-class-is-hidden="model.busy | eq false">Importing assets...</p>                    
+                    <button class="delete" aria-label="close" rv-on-click="_handleCancel"></button>
+                </header>
+                <section class="modal-card-body">
+                    <article class="message" rv-class-is-hidden="model.busy">
+                        <div class="message-body">
+                          Here you can paste json file in ThreeJs 3d file format
+                        </div>
+                    </article>
+                    <div class="field" rv-class-is-hidden="model.busy">
+                        <label class="label">Asset Kind</label>
+                        <div class="control">
+                            <input class="input" type="text" readonly rv-value="model.kind" disabled></textarea>                            
+                        </div>
+                        <p class="help">This library only allows for this kind of assets</p>
+                    </div>
+                    <!-- <div class="field" rv-class-is-hidden="model.busy">
+                        <label class="label">Asset Kind</label>
+                        <div class="control">
+                            <div class="select" >
+                              <select rv-value="model.kind">
+                                <option value="Unit">Unit</option>
+                                <option value="HexTile">Hex Tile</option>
+                                <option value="QuadTile">Quad Tile</option>
+                              </select>
+                            </div>
+                          </div>
+                        <p class="help">Assets of given type will be created</p>
+                    </div> -->
+                    <!-- <div class="field has-addons">
+                        <div class="select">
+                            <select rv-value="model.libraries.value" >                                                                    
+                                <option rv-each-item="model.libraries.original" rv-value="item.id">{item.name}</option>                                                                  
+                            </select>
+                          </div>
+                    </div> -->
+                    <div class="field" rv-class-is-hidden="model.busy">
+                        <label class="label">Assets ThreeJS JSON</label>
+                        <div class="control">
+                            <textarea class="textarea" placeholder="paste JSON here" rows="20" rv-value="model.message"></textarea>                            
+                        </div>
+                        <p class="help">This JSON will be parsed for 3D objects</p>
+                    </div>
+                    
+                    <div class="field" rv-class-is-hidden="model.busy | eq false">
+                        <label class="label">Processing ({model.current}/{model.howMany}) {model.item.name} ...</label>
+                        <div id="unitCanvasHolder" class="control">
+                            <!-- <canvas id="unitCanvas" width="250" height="250"></canvas> -->
+                        </div>                        
+                    </div>
+                    
+                </section>
+                <footer class="modal-card-foot" rv-class-is-hidden="model.busy">
+                    <button class="button is-success" rv-on-click="_handleOK">Save</button>
+                    <button class="button" rv-on-click="_handleCancel">Cancel</button>
+                </footer>
+            </div>
+            <!-- <button class="modal-close is-large" aria-label="close" rv-on-click="_handleConstructionCancel"></button> -->
+        </div>
+    </div>
+    <!-- Add Tags -->
+    <div id="addTagsModal">
+
+        <div class="modal" rv-class-is-active="model.display">
+        <!-- <div class="modal" class="is-active"></div> -->
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title" rv-class-is-hidden="model.busy">Manage annotations</p>                                        
+                    <button class="delete" aria-label="close" rv-on-click="_handleCancel"></button>
+                </header>
+                <section class="modal-card-body"> 
+                    <div class="notification is-danger is-hidden" rv-class-is-hidden="model.notify.errors | sizeLt 1">
+                        <button class="delete" rv-on-click="_handleNotifyClose"></button>
+                        <strong>Error</strong>
+                        There are errors in form 
+                        <!-- <span rv-class-is-hidden="item.url | empty"><br><a rv-href="item.url">Click here for more
+                                details</a></span> -->
+                    </div>                   
+                    <div class="field" rv-class-is-hidden="model.busy">
+                        <label class="label">Name</label>
+                        <div class="control">                            
+                            <input class="input" type="text" placeholder="i.e. Mountains with river" rv-class-is-danger="model.form.f1.error | notEmpty" rv-value="model.form.f1.value"></textarea>                            
+                        </div>
+                        <!-- <p class="help">Tags should be comma separated</p> -->
+                        <p class="help is-danger is-hidden" rv-class-is-hidden="model.form.f1.error | empty">{model.form.f1.error.message}</p>
+                    </div>
+                    <div class="field" rv-class-is-hidden="model.busy">
+                        <label class="label">Description</label>
+                        <div class="control">
+                            <textarea class="textarea" placeholder="paste asset description here" rows="2" rv-class-is-danger="model.form.f2.error | notEmpty" rv-value="model.form.f2.value"></textarea>                            
+                        </div>
+                        <p class="help is-danger is-hidden" rv-class-is-hidden="model.form.f2.error | empty">{model.form.f2.error.message}</p>
+                    </div>
+                    <div class="field" rv-class-is-hidden="model.busy">
+                        <label class="label">Tags</label>
+                        <div class="control">
+                            <textarea class="textarea" placeholder="paste comma separated tags here" rows="2" rv-class-is-danger="model.form.f3.error | notEmpty" rv-value="model.form.f3.value"></textarea>                            
+                        </div>
+                        <p class="help">Tags should be comma separated</p>
+                    </div>
+                    <div class="field" rv-class-is-hidden="model.busy | eq false">
+                        <label class="label">Processing ({model.current}/{model.howMany}) {model.item.name} ...</label>
+                        <div id="unitCanvasHolder" class="control">
+                            <!-- <canvas id="unitCanvas" width="250" height="250"></canvas> -->
+                        </div>                        
+                    </div>
+                    
+                </section>
+                <footer class="modal-card-foot" rv-class-is-hidden="model.busy">
+                    <button class="button is-success" rv-on-click="_handleOK">Save</button>
+                    <button class="button" rv-on-click="_handleCancel">Cancel</button>
+                </footer>
+            </div>
+            <!-- <button class="modal-close is-large" aria-label="close" rv-on-click="_handleConstructionCancel"></button> -->
+        </div>
+    </div>
+
+    
+
+    <div id="addLibraryModal">
+
+        <div class="modal" rv-class-is-active="model.display">
+        <!-- <div class="modal" class="is-active"></div> -->
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title" rv-class-is-hidden="model.busy">Add library</p>                    
+                    <p class="modal-card-title" rv-class-is-hidden="model.busy | eq false">Adding...</p>                    
+                    <button class="delete" aria-label="close" rv-on-click="_handleCancel"></button>
+                </header>
+                <section class="modal-card-body">
+                    <article class="message" rv-class-is-hidden="model.busy">
+                        <div class="message-body">
+                          Library holds all your assets together. 
+                        </div>
+                    </article>
+                    <div class="field" rv-class-is-hidden="model.busy">
+                        <label class="label">Name</label>
+                        <div class="control">                            
+                            <input class="input" type="text" placeholder="i.e. Medieval earth assets" rv-class-is-danger="model.form.f1.error | notEmpty" rv-value="model.form.f1.value"></textarea>                            
+                        </div>
+                        <!-- <p class="help">Tags should be comma separated</p> -->
+                        <p class="help is-danger is-hidden" rv-class-is-hidden="model.form.f1.error | empty">{model.form.f1.error.message}</p>
+                    </div>
+                    <div class="field" rv-class-is-hidden="model.busy">
+                        <label class="label">Library Asset Kind</label>
+                        <div class="control">
+                            <div class="select" >
+                              <select rv-value="model.form.f3.value">
+                                <option value="Unit">Unit</option>
+                                <option value="HexTile">Hex Tile</option>
+                                <option value="QuadTile">Quad Tile</option>
+                              </select>
+                            </div>
+                          </div>
+                        <p class="help">Library will hold only assets of given type</p>
+                    </div>
+                    <div class="field" rv-class-is-hidden="model.busy">
+                        <label class="checkbox">
+                            <input type="checkbox" rv-checked="model.form.f2.value">
+                            Public library
+                        </label>
+                        <p class="help">When selected other users may use assets from this library.</p>
+                    </div>                                                            
+                </section>
+                <footer class="modal-card-foot" rv-class-is-hidden="model.busy">
+                    <button class="button is-success" rv-on-click="_handleOK">Save</button>
+                    <button class="button" rv-on-click="_handleCancel">Cancel</button>
+                </footer>
+            </div>
+            <!-- <button class="modal-close is-large" aria-label="close" rv-on-click="_handleConstructionCancel"></button> -->
+        </div>
+    </div>
+
+    <!-- Busy Modal -->
+    <div id="busy">
+
+        <div class="modal" rv-class-is-active="model.display">
+            <div class="modal-background"></div>
+            <div class="modal-content">
+                <button class="button is-warning is-loading" disabled></button><br>
+                <p class="subtitle my-3 px-2 py-2" style="background-color: #eff0f1; display: inline-block;">
+                    {model.message}
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Claim Modal -->
+    <div id="claim">
+
+        <div class="modal" rv-class-is-active="model.display">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Claim Place</p>
+                    <button class="delete" aria-label="close" rv-on-click="_handleCancel"></button>
+                </header>
+                <section class="modal-card-body">
+                    <table class="table is-fullwidth is-borderless">
+                        <tbody>
+                            <tr>
+                                <th>Name: </th>
+                                <td class="is-borderless">{model.currentTile.tileData.d.n}
+                                    ({model.currentTile.tileData.d.l.x},{model.currentTile.tileData.d.l.y})</td>
+                            </tr>
+
+                            <tr>
+                                <th>Address: </th>
+                                <td class="is-borderless">{model.currentTile.address} <span
+                                        class="is-hidden">{model.currentTile.tileData.d.l.g}</span></td>
+                            </tr>
+                            <!-- <tr>
+                                <th>Plot Type: </th>
+                                <td class="is-borderless">{model.currentTile.tileData.t.n}</td>
+                            </tr> -->
+                            <tr>
+                                <th class="is-borderless">Net Worth: </th>
+                                <td class="is-borderless">{model.currentTile.tileData.d.f.n | GWEItoETH} ETH&nbsp;</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="field">
+                        <label class="label">Claim e-mail</label>
+                        <div class="control">
+                            <input class="input" type="text" placeholder="Your notification email"
+                                rv-value="model.form.email" rv-class-is-danger="model.validation.f1.error">
+                        </div>
+                        <p class="help" rv-class-is-hidden="model.validation.f1.error">You will get notified on claim results using this email.</p>
+                        <p class="help is-danger" rv-class-is-hidden="model.validation.f1.error | neq true">{model.validation.f1.msg}</p>
+                    </div>
+                    <div class="field">
+                        <label class="label">Your Ethereum Address</label>
+                        <div class="control">
+                            <input class="input" type="text" placeholder="0x..." rv-value="model.form.caddr" rv-class-is-danger="model.validation.f2.error">
+                        </div>
+                        <p class="help" rv-class-is-hidden="model.validation.f2.error">When claimed this addres will be set as the plot owner.</p>
+                        <p class="help is-danger" rv-class-is-hidden="model.validation.f2.error | neq true">{model.validation.f2.msg}</p>
+                    </div>
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" rv-on-click="_handleOK">Send</button>
+                    <button class="button" rv-on-click="_handleCancel">Cancel</button>
+                </footer>
+            </div>
+            <!-- <button class="modal-close is-large" aria-label="close" rv-on-click="_handleCancel"></button> -->
+        </div>
+    </div>
+
+    <!-- Admin Change Ownership Modal -->
+    <div id="admin">
+
+        <div class="modal" rv-class-is-active="model.action.changeOwnership.display">
+            <div class="modal-background"></div>
+            <div class="modal-card">
+                <header class="modal-card-head">
+                    <p class="modal-card-title">Change Ownership</p>
+                    <button class="delete" aria-label="close" rv-on-click="_handleCancel"></button>
+                </header>
+                <section class="modal-card-body">
+                    <table class="table is-fullwidth is-borderless">
+                        <tbody>
+                            <tr>
+                                <th>Name: </th>
+                                <td class="is-borderless">{model.currentTile.tileData.d.n}
+                                    ({model.currentTile.tileData.d.l.x},{model.currentTile.tileData.d.l.y})</td>
+                            </tr>
+
+                            <tr>
+                                <th>Address: </th>
+                                <td class="is-borderless">{model.currentTile.address} <span
+                                        class="is-hidden">{model.currentTile.tileData.d.l.g}</span></td>
+                            </tr>
+                            <!-- <tr>
+                                <th>Plot Type: </th>
+                                <td class="is-borderless">{model.currentTile.tileData.t.n}</td>
+                            </tr> -->
+                            <tr>
+                                <th class="is-borderless">Current owner: </th>
+                                <td class="is-borderless">{model.currentTile.tileData.d.f.o}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+
+                    <div class="field">
+                        <label class="label">Owner Caddr</label>
+                        <div class="control">
+                            <input class="input" type="text" placeholder="New owner address"
+                                rv-value="model.action.changeOwnership.form.f1" rv-class-is-danger="model.action.changeOwnership.validation.f1.error">
+                        </div>
+                        <p class="help" rv-class-is-hidden="model.action.changeOwnership.validation.f1.error">Plot will be assigned to this address.</p>
+                        <p class="help is-danger" rv-class-is-hidden="model.action.changeOwnership.validation.f1.error | neq true">{model.action.changeOwnership.validation.f1.msg}</p>
+                    </div>                    
+                </section>
+                <footer class="modal-card-foot">
+                    <button class="button is-success" rv-on-click="_handleOKOwnerChange">Save</button>
+                    <button class="button" rv-on-click="_handleCancel">Cancel</button>
+                </footer>
+            </div>
+            <!-- <button class="modal-close is-large" aria-label="close" rv-on-click="_handleCancel"></button> -->
+        </div>
+    </div>
+
+    <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-database-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.19.0/firebase-auth-compat.js"></script>
+    
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-app-compat.js"></script>
+        
+    <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-functions-compat.js"></script> -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-firestore-compat.js"></script> -->
+    <!-- <script src="https://www.gstatic.com/firebasejs/9.1.2/firebase-auth-compat.js"></script> -->
+
+    <!-- <script type="module">
+        // Import the functions you need from the SDKs you need
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
+        // TODO: Add SDKs for Firebase products that you want to use
+        // https://firebase.google.com/docs/web/setup#available-libraries
+      
+        // Your web app's Firebase configuration
+        const firebaseConfig = {
+          apiKey: "AIzaSyCOJrKiXk-U9139Ys7o1OrXmQtB2YJmLUE",
+          authDomain: "gamengine-157c5.firebaseapp.com",
+          databaseURL: "https://gamengine-157c5-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "gamengine-157c5",
+          storageBucket: "gamengine-157c5.appspot.com",
+          messagingSenderId: "1054659077299",
+          appId: "1:1054659077299:web:85fab66102a43dc4cebcc6"
+        };
+      
+        // Initialize Firebase
+        const app = initializeApp(firebaseConfig);
+      </script> -->
+
+    <script>
+        const firebaseConfig = {
+          apiKey: "AIzaSyCOJrKiXk-U9139Ys7o1OrXmQtB2YJmLUE",
+          authDomain: "gamengine-157c5.firebaseapp.com",
+          databaseURL: "https://gamengine-157c5-default-rtdb.europe-west1.firebasedatabase.app",
+          projectId: "gamengine-157c5",
+          storageBucket: "gamengine-157c5.appspot.com",
+          messagingSenderId: "1054659077299",
+          appId: "1:1054659077299:web:85fab66102a43dc4cebcc6"
+        };
+        firebase.initializeApp(firebaseConfig);
+    </script>
+
+
+    <script>
+
+        
+
+
+        class EventEmitter {
+            constructor() {
+                this.listeners = {};
+            }
+
+            static getInstance() {
+                return new EventEmitter();
+            }
+
+            on(event, callback) {
+                if (!this.listeners.hasOwnProperty(event)) {
+                    this.listeners[event] = [];
+                }
+
+                this.listeners[event].push(callback);
+
+                return this;
+            }
+
+            emit(event, ...data) {
+                // if (!this.listeners.hasOwnProperty(event)) {
+                //     return null;
+                // }
+
+                // for (let i = 0; i < this.listeners[event].length; i++) {
+                //     const callback = this.listeners[event][i];
+
+                //     callback.call(this, ...data);
+                // }
+
+                const that = this;
+
+                // handle wildcards
+                Object.keys(this.listeners).forEach(function(key,index) {
+                    // key: the name of the object key
+                    // index: the ordinal position of the key within the object 
+                    const regex = new RegExp(key,"g");
+                    if(regex.test(event)){
+                        for (let i = 0; i < that.listeners[key].length; i++) {
+                            const callback = that.listeners[key][i];
+                            callback.call(that, ...data);
+                        }
+                    }
+                });                
+            }
+        }
+        const emitter = EventEmitter.getInstance();
+        const mapCanvas = document.getElementById("map");
+
+        const emitter2 = EventEmitter.getInstance();
+        const mapCanvas2 = document.getElementById("map2");
+        initializeRivetFormatters()
+
+        AddAssetModalController.getInstance(emitter).then((controller)=>{
+            rivets.bind(document.getElementById('loadAssetModal'),controller);
+        })
+
+        AddTagsModalController.getInstance(emitter).then((controller)=>{
+            rivets.bind(document.getElementById('addTagsModal'),controller);
+        })
+
+        addLibraryModalController.getInstance(emitter).then((controller)=>{
+            rivets.bind(document.getElementById('addLibraryModal'),controller);
+        })
+
+        AppDemo.getInstance(emitter, mapCanvas).then((demo)=>{
+            rivets.bind(document.getElementById('app'), demo);
+            // const demo2 = AppDemo.getInstance(emitter2, mapCanvas2);
+
+            window.mgr_tiles = [];
+            window.emitter = emitter;
+            window.demo = demo;
+
+            // emitter.on(hexmap3d.Events.INTERACTIONS.TILE,(event)=>{
+            //     if(event.originalEvent.type=="pointerdown") {
+            //         for(let i=event.data.hierarchy.length-1; i>= 0; i--){
+            //         if(event.data.hierarchy[i].userData.tileData){                
+            //             tileData = event.data.hierarchy[i].userData.tileData                    
+            //             window.mgr_tiles.push(tileData);
+            //         }
+            //     }
+            //     };
+                
+                
+            //     // console.log('TILE',event.originalEvent.type)
+            // });
+            // emitter.on(hexmap3d.Events.INTERACTIONS.UNIT,(event)=>{
+            //     if(event.originalEvent.type=="pointerdown") {
+            //         console.log('UNIT', event)
+            //     }
+                
+            // });
+            // emitter.on(hexmap3d.Events.INTERACTIONS.HUD,(e)=>{console.log('HUD', e)});
+
+
+        });
+
+
+
+
+
+    </script>
+    <!-- Async script executes immediately and must be after any DOM elements used in callback. -->
+    <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+    <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+    <footer class="footer">
+        <div class="content has-text-centered">
+            <p>
+                Made with <span style="color: #e25555;">&#9829;</span> in Switzerland<br>
+                &copy;
+                <span id="copyright">
+                    <script>document.getElementById('copyright').appendChild(document.createTextNode(new Date().getFullYear()))</script>
+                </span>
+                NFT City
+            </p>
+        </div>
+    </footer>
+
+    
+</body>
+
+</html>

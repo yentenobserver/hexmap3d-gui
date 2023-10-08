@@ -1152,6 +1152,11 @@ class App {
         return result;
     }
 
+    /**
+     * Extracts and builds asset references from map tile data
+     * @param {*} tiles 
+     * @returns 
+     */
     async _assetReferences(tiles){
         const references = [];
         const uniqueTilesR = [...new Set(tiles.map(tile => tile.r))];
@@ -1208,6 +1213,64 @@ class App {
         result.assets = await that._assetReferences(result.tiles);
 
         await that.api.User3.putMap(result);
+    }
+
+    /**
+     * Extracts assets data used in the map and exports them as assets specification
+     * @param {*} e 
+     * @param {*} that 
+     */
+    async _handleDownloadAssetsSpecification(e, that){
+        const result = await that._prepareAssetsForExport();        
+        that._downloadJson(result, `${that.model.mapCharacteristics.name}_assets`);
+    }
+
+    /**
+     * Extracts assets data used in the map and exports them as assets specification
+     * @param {*} e 
+     * @param {*} that 
+     */
+    async _handleCopyAssetsSpecification(e, that){
+        const result = await that._prepareAssetsForExport();    
+        
+        navigator.clipboard.writeText(JSON.stringify(result));
+    }
+
+    async _prepareAssetsForExport(){
+        const that = this;
+
+        const result = [];
+
+        const tiles = Array.from(that.mapEngine._engine.theMap.values());
+
+        const assets = [];
+
+        tiles.forEach((tile)=>{
+            const asset = that.model.assets.original.find((asset)=>{
+                return asset.variant.fullName.toLowerCase() == tile.r.toLowerCase()
+            })
+            // add asset only once, to have unique array of assets used in map
+            if(!assets.find(item=>item.specs.id == asset.specs.id && item.specs.library == asset.specs.library))
+                assets.push(asset)
+        })        
+        
+        assets.forEach((asset)=>{
+            asset.specs.variants.forEach((variant)=>{
+                // AssetSpecs
+                const data = {
+
+                    name: `${asset.specs.name}_${asset.specs.id}`,
+                    json: JSON.stringify(variant.renderableJSON),                                    
+                    autoPivotCorrection: true,                
+                    scaleCorrection: {                    
+                        autoFitSize: 1                
+                    },
+                    filterByNames: ["MAS_"]
+                }
+                result.push(data);
+            })            
+        })
+        return result;
     }
 
     async _handleDownloadMap(e, that){

@@ -113,6 +113,17 @@
 
             
         </section>
+        <section class="hero is-warning">
+            <div class="hero-body">
+              <p class="title">
+                Hexmap3D Map Editor
+              </p>
+              <p class="subtitle">
+                This interactive component allows you to create, browser and debug a HexMap3D engine compatible map. You can create new map from scratch, load existing map json data or load 
+                map from the cloud.
+              </p>
+            </div>
+        </section>
         <section class="section is-hidden" rv-class-is-hidden="model.process.step | neq 'ChooseKind'">        
             <h1 class="title">Create/Edit Map</h1>
             <div class="field is-grouped">
@@ -123,22 +134,27 @@
                 </p>                
                 <p class="control">
                     <button class="button is-success" data-next-step="UseJson" rv-on-click="_handleStepChooseKind">
-                    Use Json
+                    Load From Json
                     </button>
                 </p>
                 
-                <p class="control">
-                    <button class="button is-success" rv-on-click="_handleLoadMap">
-                        Load Map
-                    </button>
-                    <div class="select" >
-                        <select rv-value="model.selected.map">                        
-                          <option value="-1">Choose</option>                          
-                          <option rv-each-map="model.maps.original" rv-value="map.specs.id">{map.specs.name} {map.specs.size}@{map.specs.kind} #{map.specs.id}</option>                          
-                        </select>
+                <div class="field is-horizontal mx-6">
+                    <div class="field-label is-normal">
+                        <label class="label">Cloud maps:</label>
                     </div>
                     
-                </p>
+                    <p class="control">                    
+                        <div class="select" >
+                            <select rv-value="model.selected.map">                        
+                            <option value="-1">Select map</option>                          
+                            <option rv-each-map="model.maps.original" rv-value="map.specs.id">{map.specs.name} {map.specs.size}@{map.specs.kind} #{map.specs.id}</option>                          
+                            </select>
+                        </div>
+                        <button class="button is-success mx-2" rv-on-click="_handleLoadMap">
+                            <i class="fa fa-arrow-left" aria-hidden="true"></i>&nbsp;Load Selected
+                        </button>
+                    </p>
+                </div>
             </div>              
         </section>
         

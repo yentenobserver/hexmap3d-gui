@@ -760,7 +760,7 @@ class App {
         searchPhrase.split(/\s+/g)
 
         this.model.assets.filtered = this.model.assets.original.filter((item)=>{
-            return item.specs.name.toLowerCase().split(/\s+/g).every((item)=>{return searchPhrase.includes(item)})
+            return item.specs.name.toLowerCase().split(/\s+/g).some((item)=>{return searchPhrase.includes(item)})
             || item.variant.fullName.toLowerCase().includes(searchPhrase) 
             || item.specs.id.toLowerCase().includes(searchPhrase) 
             || item.specs.tags.join(",").toLowerCase().includes(searchPhrase)

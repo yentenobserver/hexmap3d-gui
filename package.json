@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "date && echo \"Preparing...\" && rm -fr public/ && mkdir public && cp -r src/mapeditor/ public/ && echo \"Preparing...DONE.\"",
+    "prepare": "date && echo \"Preparing...\" && rimraf public/*  && cp -r src/mapeditor/ public/ && echo \"Preparing...DONE.\"",
     "deploy": "date && echo \"Deploying...\" && npm run prepare && firebase deploy --only hosting"
   },
   "author": "",
